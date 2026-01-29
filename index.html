@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Social Media ROI Calculator | Measure Your Real Impact</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M20 20c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8zm0-8c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm8 8c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        }
+
+        .header h1 {
+            font-size: 3.2em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .results-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+
+        .input-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .platform-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .platform-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .platform-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .platform-tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        }
+
+        .roi-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .roi-number {
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .roi-label {
+            font-size: 1.2em;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 25px;
+        }
+
+        .breakdown-list {
+            list-style: none;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .breakdown-value {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .insights-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .insight-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #28a745;
+        }
+
+        .insight-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .insight-card.danger {
+            border-left-color: #dc3545;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .insight-text {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .platform-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .platform-option {
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .platform-option:hover {
+            border-color: #667eea;
+        }
+
+        .platform-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .platform-option .platform-name {
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .platform-option .platform-desc {
+            font-size: 0.75em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .export-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #f8f9fa;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .calculator-panel,
+            .results-panel {
+                padding: 20px;
+            }
+            
+            .platform-tabs {
+                flex-direction: column;
+            }
+            
+            .roi-number {
+                font-size: 3em;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102,126,234,.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-good {
+            background: #28a745;
+        }
+
+        .status-warning {
+            background: #ffc107;
+        }
+
+        .status-poor {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Social Media ROI Calculator</h1>
+        <p>Measure the real financial impact of your social media efforts</p>
+    </div>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="calculator-panel">
+                <h2 class="section-title">💰 Revenue & Costs</h2>
+                
+                <div class="platform-selector" id="platformSelector">
+                    <div class="platform-option selected" data-platform="all">
+                        <div class="platform-name">All Platforms</div>
+                        <div class="platform-desc">Combined</div>
+                    </div>
+                    <div class="platform-option" data-platform="twitter">
+                        <div class="platform-name">Twitter/X</div>
+                        <div class="platform-desc">Microblogging</div>
+                    </div>
+                    <div class="platform-option" data-platform="linkedin">
+                        <div class="platform-name">LinkedIn</div>
+                        <div class="platform-desc">Professional</div>
+                    </div>
+                    <div class="platform-option" data-platform="instagram">
+                        <div class="platform-name">Instagram</div>
+                        <div class="platform-desc">Visual</div>
+                    </div>
+                    <div class="platform-option" data-platform="tiktok">
+                        <div class="platform-name">TikTok</div>
+                        <div class="platform-desc">Short Video</div>
+                    </div>
+                    <div class="platform-option" data-platform="youtube">
+                        <div class="platform-name">YouTube</div>
+                        <div class="platform-desc">Long Video</div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <h3>💵 Revenue Sources</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="directSales">Direct Sales ($)</label>
+                            <input type="number" id="directSales" placeholder="0" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="affiliateCommissions">Affiliate Commissions ($)</label>
+                            <input type="number" id="affiliateCommissions" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="sponsorships">Sponsorships ($)</label>
+                            <input type="number" id="sponsorships" placeholder="0" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="leadValue">Lead Generation Value ($)</label>
+                            <input type="number" id="leadValue" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="brandAwareness">Brand Awareness Value ($)</label>
+                            <input type="number" id="brandAwareness" placeholder="0" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="otherRevenue">Other Revenue ($)</label>
+                            <input type="number" id="otherRevenue" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <h3>💸 Cost Breakdown</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="timeSpent">Time Spent (hours/month)</label>
+                            <input type="number" id="timeSpent" placeholder="0" min="0" step="0.5">
+                        </div>
+                        <div class="input-group">
+                            <label for="hourlyRate">Your Hourly Rate ($)</label>
+                            <input type="number" id="hourlyRate" placeholder="50" min="0" step="1">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="adSpend">Advertising Spend ($)</label>
+                            <input type="number" id="adSpend" placeholder="0" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="toolsCosts">Tools & Software ($)</label>
+                            <input type="number" id="toolsCosts" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="contentCreation">Content Creation Costs ($)</label>
+                            <input type="number" id="contentCreation" placeholder="0" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="otherCosts">Other Costs ($)</label>
+                            <input type="number" id="otherCosts" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateROI()">
+                    📊 Calculate ROI
+                </button>
+
+                <div class="input-section">
+                    <h3>🎯 Performance Metrics</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="followers">Total Followers</label>
+                            <input type="number" id="followers" placeholder="0" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="engagement">Monthly Engagement</label>
+                            <input type="number" id="engagement" placeholder="0" min="0">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="websiteTraffic">Website Traffic</label>
+                            <input type="number" id="websiteTraffic" placeholder="0" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="conversions">Conversions</label>
+                            <input type="number" id="conversions" placeholder="0" min="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <h2 class="section-title">📈 ROI Analysis</h2>
+                
+                <div class="roi-display">
+                    <div class="roi-number" id="roiNumber">0%</div>
+                    <div class="roi-label">Return on Investment</div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalRevenue">$0</div>
+                        <div class="metric-label">Total Revenue</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalCosts">$0</div>
+                        <div class="metric-label">Total Costs</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="netProfit">$0</div>
+                        <div class="metric-label">Net Profit</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="costPerFollower">$0</div>
+                        <div class="metric-label">Cost per Follower</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="revenuePerFollower">$0</div>
+                        <div class="metric-label">Revenue per Follower</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="conversionRate">0%</div>
+                        <div class="metric-label">Conversion Rate</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="roiChart"></canvas>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📋 Cost Breakdown</h3>
+                <ul class="breakdown-list" id="costBreakdown">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+
+                <div class="export-section">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">📤 Export Results</h3>
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="exportToPDF()">📄 Export PDF</button>
+                        <button class="export-btn" onclick="exportToCSV()">📊 Export CSV</button>
+                        <button class="export-btn" onclick="shareResults()">🔗 Share Link</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="insights-panel">
+            <h2 class="section-title">💡 Insights & Recommendations</h2>
+            <div class="insight-cards" id="insightCards">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
